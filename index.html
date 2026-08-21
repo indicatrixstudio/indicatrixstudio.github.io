@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indicatrix Studio — Games That Matter</title>
+<style>
+  :root{
+    --bg:#0d0f12;
+    --bg-alt:#14171c;
+    --panel:#1b1f26;
+    --text:#e8e9eb;
+    --muted:#9aa0a8;
+    --accent:#e3392e;
+    --accent-hover:#ff5347;
+    --line:#2a2f37;
+    --header-h:150px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height:1.6;
+  }
+
+  /* ============ HEADER ============ */
+  header{
+    position:fixed;
+    top:0; left:0; right:0;
+    height:var(--header-h);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 40px;
+    background:rgba(13,15,18,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    z-index:100;
+    transition:height .3s ease;
+  }
+  header.shrunk{ height:90px; }
+  header.shrunk .logo-box{ width:70px; height:70px; font-size:.6rem; }
+
+  .logo-box{
+    width:150px;
+    height:150px;
+    max-height:calc(var(--header-h) - 10px);
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:all .3s ease;
+    user-select:none;
+  }
+  .logo-box img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    transition:all .3s ease;
+  }
+
+  nav ul{
+    display:flex;
+    gap:48px;
+    list-style:none;
+  }
+  nav a{
+    color:var(--text);
+    text-decoration:none;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.9rem;
+    font-weight:700;
+    padding:8px 2px;
+    position:relative;
+    transition:color .25s;
+  }
+  nav a::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:0;
+    width:0; height:2px;
+    background:var(--accent);
+    transition:width .25s ease;
+  }
+  nav a:hover, nav a.active{ color:var(--accent); }
+  nav a:hover::after, nav a.active::after{ width:100%; }
+
+  .burger{
+    display:none;
+    background:none;
+    border:none;
+    cursor:pointer;
+    flex-direction:column;
+    gap:6px;
+    padding:8px;
+  }
+  .burger span{
+    display:block;
+    width:28px; height:3px;
+    background:var(--text);
+    transition:.3s;
+  }
+
+  /* ============ SECTIONS ============ */
+  section{ padding:110px 24px; }
+  .wrap{ max-width:1180px; margin:0 auto; }
+  .section-title{
+    font-size:clamp(1.8rem, 4vw, 3rem);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:12px;
+  }
+  .section-title::after{
+    content:"";
+    display:block;
+    width:70px; height:4px;
+    background:var(--accent);
+    margin-top:14px;
+  }
+  .lead{ color:var(--muted); max-width:720px; margin-bottom:48px; }
+
+  /* ABOUT */
+  #about{ background:var(--bg-alt); padding-top:calc(var(--header-h) + 40px); }
+  .about-games-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:70px;
+    align-items:start;
+  }
+  .about-col > .section-title, .games-col > .section-title{
+    font-size:clamp(1.6rem, 3.2vw, 2.4rem);
+  }
+  .about-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+    align-items:start;
+  }
+  .about-grid p{ margin-bottom:18px; color:var(--muted); }
+  .about-grid p strong{ color:var(--text); }
+
+  /* GAMES */
+  .games-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 400px));
+    gap:28px;
+  }
+  .game-card{
+    display:block;
+    background:var(--panel);
+    border:1px solid var(--line);
+    overflow:hidden;
+    cursor:pointer;
+    text-decoration:none;
+    color:inherit;
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .game-card:hover{ transform:translateY(-6px); border-color:var(--accent); }
+  .game-cover{
+    height:190px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:2.6rem;
+    letter-spacing:.05em;
+    font-weight:800;
+    color:rgba(255,255,255,.85);
+  }
+  .cover-1{ background:linear-gradient(135deg,#3b1f2b,#a32638); }
+  .cover-2{ background:linear-gradient(135deg,#12303f,#1f7a8c); }
+  .cover-3{ background:linear-gradient(135deg,#2c2a4a,#7a3b8f); }
+  .cover-4{ background:linear-gradient(135deg,#243b1f,#5a8c3a); }
+  .game-info{ padding:22px; }
+  .game-info h3{
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:1.05rem;
+    margin-bottom:8px;
+  }
+  .game-info .tag{
+    display:inline-block;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    color:var(--accent);
+    margin-bottom:10px;
+  }
+  .game-info p{ color:var(--muted); font-size:.9rem; }
+
+  /* CONTACT */
+  #contact{ background:var(--bg-alt); }
+  .contact-grid{
+    display:grid;
+    grid-template-columns:1fr 1.2fr;
+    gap:60px;
+  }
+  .contact-list div{
+    padding:20px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .contact-list h4{
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:.85rem;
+    color:var(--accent);
+    margin-bottom:4px;
+  }
+  .contact-list a{ color:var(--text); text-decoration:none; }
+  .contact-list a:hover{ color:var(--accent); }
+
+  .map-box{
+    border:1px solid var(--line);
+    background:var(--panel);
+    overflow:hidden;
+    min-height:420px;
+    display:flex;
+  }
+  .map-box iframe{
+    border:0;
+    width:100%;
+    min-height:420px;
+    flex:1;
+    display:block;
+    filter:grayscale(25%) contrast(1.05);
+  }
+
+.about-grid p{
+  margin-bottom:18px;
+  color:var(--text);
+}
+
+.about-grid ul{
+  margin:0 0 22px 0;
+  padding-left:2.2em;
+  color:var(--text);
+}
+
+.about-grid li{
+  margin-bottom:8px;
+  padding-left:4px;
+}
+
+.game-cover img{
+  width:90%;
+  height:auto;
+  object-fit:contain;
+}
+
+article p{
+  color:var(--muted);
+  margin-bottom:18px;
+}
+
+article ul{
+  margin:0 0 22px 0;
+  padding-left:2.2em;
+  color:var(--text);
+}
+
+article li{
+  margin-bottom:8px;
+  padding-left:4px;
+}
+
+
+.about-grid a{
+  color:var(--text);
+  text-decoration:none;
+  transition:color .25s;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.about-grid a:hover{
+  color:var(--accent);
+}
+
+.about-link-icon{
+  width:16px;
+  height:16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  flex:0 0 auto;
+}
+
+  /* FOOTER */
+  footer{
+    border-top:1px solid var(--line);
+    padding:44px 24px;
+    text-align:center;
+    color:var(--muted);
+    font-size:.85rem;
+  }
+  footer .socials{
+    display:flex;
+    justify-content:center;
+    gap:26px;
+    margin-bottom:20px;
+  }
+  footer .socials a{
+    color:var(--muted);
+    text-decoration:none;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:.75rem;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:color .25s;
+  }
+  footer .socials a svg{
+    width:18px;
+    height:18px;
+    fill:currentColor;
+    flex:0 0 auto;
+  }
+  footer .socials a:hover{ color:var(--accent); }
+
+  /* Reveal on scroll */
+  .reveal{
+    opacity:0;
+    transform:translateY(30px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .reveal.visible{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px){
+    :root{ --header-h:100px; }
+    .logo-box{ width:88px; height:88px; font-size:.6rem; }
+    .burger{ display:flex; }
+    nav{
+      position:fixed;
+      top:var(--header-h); right:0;
+      width:min(320px, 80vw);
+      height:calc(100vh - var(--header-h));
+      background:var(--bg-alt);
+      border-left:1px solid var(--line);
+      transform:translateX(100%);
+      transition:transform .3s ease;
+      padding:40px 32px;
+    }
+    nav.open{ transform:translateX(0); }
+    nav ul{ flex-direction:column; gap:28px; }
+    .about-grid, .contact-grid, .about-games-layout{ grid-template-columns:1fr; gap:40px; }
+    header.shrunk{ height:var(--header-h); }
+    header.shrunk .logo-box{ width:88px; height:88px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header id="siteHeader">
+  <a href="#" class="logo-box" aria-label="Indicatrix Studio — home">
+    <img src="./img/Logo150.png" alt="Indicatrix Studio">
+  </a>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="mainNav">
+    <ul>
+      <li><a href="#about" class="nav-link">About</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ================= ABOUT (incl. GAMES) ================= -->
+<section id="about">
+  <div class="wrap">
+    <div class="about-games-layout">
+      <div class="about-col">
+        <h2 class="section-title reveal">About</h2>
+        <p class="lead reveal">Developer &amp; publisher of games that matter.</p>
+        <div class="about-grid">
+          <div class="reveal">
+
+
+<p>
+Martin Timothy Timko is a freelance programmer and teacher who creates computer games and applications in his free time.
+</p>
+<ul>
+<li>I develop computer games using Unity/C#, and occasionally C/C++</li>
+<li>I develop websites using ASP.NET/C# for the backend and React/Angular for the frontend</li>
+<li>I develop applications mostly using .NET WinForms</li>
+<li>
+Since January 2026, I have also been using AI tools such as ChatGPT and Claude in my development process, while maintaining full control over the development and final result
+</li>
+<li>I create some of my graphics myself, while others are sourced from the Asset Store, Synty, or AI. I also make minor modifications and adjustments myself</li>
+</ul>
+<p>
+Indicatrix Studio is a fictional company name and merely a brand operated by a single individual.
+</p>
+
+<p>
+  My personal website:<br />
+  <a href="https://mtt-web.github.io" target="_blank" rel="noopener noreferrer">
+    <svg class="about-link-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M3 12h18"></path>
+      <path d="M12 3c2.5 2.5 3.8 5.5 3.8 9S14.5 18.5 12 21"></path>
+      <path d="M12 3c-2.5 2.5-3.8 5.5-3.8 9S9.5 18.5 12 21"></path>
+    </svg>
+    mtt-web.github.io
+  </a>
+</p>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="games-col" id="games">
+        <h2 class="section-title reveal">Games</h2>
+        <p class="lead reveal"></p>
+        <div class="games-grid">
+          <a class="game-card reveal" href="cargo-industry.html" title="Cargo Industry">
+            <div class="game-cover cover-1">
+<img src="./img/GameLogo.png" alt="Cargo Industry">
+</div>
+            <div class="game-info">
+              <span class="tag">Simulation/Strategy</span>
+              <h3>Cargo Industry</h3>
+              <p>Build a logistics empire from a single rusty trains and truck. Every contract you take shapes the world your drivers live in.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+  <div class="wrap">
+    <h2 class="section-title reveal">Contact</h2>
+    <p class="lead reveal">Press request, business inquiry, or you just want to say hello — get in touch.</p>
+    <div class="contact-grid">
+      <div class="contact-list reveal">
+        <div>
+          <h4>Web</h4>
+          <a href="http://complexindicatrix.github.io" target="_blank">http://complexindicatrix.github.io</a>
+        </div>
+        <div>
+          <h4>itch.io</h4>
+          <a href="https://indicatrixstudio.itch.io/cargo-industry" target="_blank">https://indicatrixstudio.itch.io/cargo-industry</a>
+        </div>
+	<div>
+          <h4>GameJolt</h4>
+          <a href="mailto:business@indicatrixstudio.com" target="_blank">business@indicatrixstudio.com</a>
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <p>Indicatrix Studio<br>Martin Timothy Timko<br>Slovakia, Europe</p>
+        </div>
+      </div>
+      <div class="map-box reveal">
+        <iframe
+          src="https://www.google.com/maps?q=Slovakia&ll=48.669,19.699&z=7&output=embed"
+          title="Indicatrix Studio — location map (Slovakia)"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="socials">
+        <a href="http://www.youtube.com/@martin-timothy-timko" target="_blank" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="1.5" y="5" width="21" height="14" rx="4" fill="currentColor"/>
+        <polygon points="10,9 16,12 10,15" fill="var(--bg)"/>
+      </svg>
+      YouTube
+    </a>
+    <a href="https://mtt-web.github.io" target="_blank" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+      </svg>
+      GitHub
+    </a>
+  </div>
+  <p>All trademarks referenced herein are the properties of their respective owners.</p>
+  <p>&copy; 2026 Indicatrix Studio. All rights reserved.</p>
+</footer>
+
+<script>
+  // ---- Header shrink on scroll ----
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('shrunk', window.scrollY > 80);
+  }, { passive:true });
+
+  // ---- Mobile menu ----
+  const burger = document.getElementById('burger');
+  const nav = document.getElementById('mainNav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+  });
+  nav.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => nav.classList.remove('open'))
+  );
+
+  // ---- Active nav link while scrolling ----
+  const sections = ['about','contact'].map(id => document.getElementById(id));
+  const links = document.querySelectorAll('.nav-link');
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active',
+          l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin:'-40% 0px -55% 0px' });
+  sections.forEach(s => spy.observe(s));
+
+  // ---- Reveal on scroll ----
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold:.12 });
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+</script>
+</body>
+</html>

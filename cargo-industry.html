@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cargo Industries — Indicatrix Studio</title>
+<style>
+  :root{
+    --bg:#0d0f12;
+    --bg-alt:#14171c;
+    --panel:#1b1f26;
+    --text:#e8e9eb;
+    --muted:#9aa0a8;
+    --accent:#e3392e;
+    --accent-hover:#ff5347;
+    --line:#2a2f37;
+    --header-h:150px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height:1.6;
+  }
+
+  /* ============ HEADER (same as index.html) ============ */
+  header{
+    position:fixed;
+    top:0; left:0; right:0;
+    height:var(--header-h);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 40px;
+    background:rgba(13,15,18,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    z-index:100;
+    transition:height .3s ease;
+  }
+  header.shrunk{ height:90px; }
+  header.shrunk .logo-box{ width:70px; height:70px; font-size:.6rem; }
+
+  .logo-box{
+    width:150px;
+    height:150px;
+    max-height:calc(var(--header-h) - 10px);
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:all .3s ease;
+    user-select:none;
+    text-decoration:none;
+  }
+  .logo-box img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    transition:all .3s ease;
+  }
+
+  nav ul{
+    display:flex;
+    gap:48px;
+    list-style:none;
+  }
+  nav a{
+    color:var(--text);
+    text-decoration:none;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.9rem;
+    font-weight:600;
+    padding:8px 2px;
+    position:relative;
+    transition:color .25s;
+  }
+  nav a::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:0;
+    width:0; height:2px;
+    background:var(--accent);
+    transition:width .25s ease;
+  }
+  nav a:hover, nav a.active{ color:var(--accent); }
+  nav a:hover::after, nav a.active::after{ width:100%; }
+
+  .burger{
+    display:none;
+    background:none;
+    border:none;
+    cursor:pointer;
+    flex-direction:column;
+    gap:6px;
+    padding:8px;
+  }
+  .burger span{
+    display:block;
+    width:28px; height:3px;
+    background:var(--text);
+    transition:.3s;
+  }
+
+  /* ============ TWO-COLUMN LAYOUT ============ */
+  main{
+    max-width:1480px;
+    margin:0 auto;
+    padding:calc(var(--header-h) + 50px) 24px 100px;
+  }
+  .cargo-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:start;
+  }
+  @media (max-width:1300px){
+    .cargo-layout{ grid-template-columns:1fr; }
+  }
+
+  /* ============ SCREENSHOTS COLUMN ============ */
+  .screens-title{
+    font-size:clamp(1.4rem, 2.6vw, 2rem);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    line-height:1.1;
+    font-weight:800;
+  }
+  .screens-title::after{
+    content:"";
+    display:block;
+    width:50px; height:3px;
+    background:var(--accent);
+    margin-top:14px;
+  }
+  .screens-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px;
+    margin-top:28px;
+  }
+  .thumb{
+    aspect-ratio:16/9;
+    border:1px solid var(--line);
+    padding:0;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:rgba(255,255,255,.85);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    font-size:.75rem;
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .thumb:hover{ transform:translateY(-4px); border-color:var(--accent); }
+  .thumb:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+
+
+.thumb{
+  overflow:hidden;
+  padding:0;
+  background:var(--panel);
+}
+
+.thumb img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  transition:transform .3s ease;
+}
+
+.thumb:hover img{
+  transform:scale(1.05);
+}
+
+  /* ============ LIGHTBOX ============ */
+  .lightbox{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(6,7,9,.94);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:70px 24px;
+  }
+  .lightbox.open{ display:flex; }
+  .lightbox-stage{
+    width:min(1100px, 92vw);
+    aspect-ratio:16/9;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:clamp(1.4rem, 3vw, 2.4rem);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:rgba(255,255,255,.9);
+  }
+  .lightbox-close, .lightbox-nav{
+    background:none;
+    border:none;
+    color:var(--text);
+    cursor:pointer;
+    transition:color .2s;
+  }
+  .lightbox-close{
+    position:absolute;
+    top:22px; right:28px;
+    font-size:2.2rem;
+    line-height:1;
+  }
+  .lightbox-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:2rem;
+    padding:12px;
+  }
+  .lightbox-nav.prev{ left:12px; }
+  .lightbox-nav.next{ right:12px; }
+  .lightbox-close:hover, .lightbox-nav:hover{ color:var(--accent); }
+  .lightbox-counter{
+    position:absolute;
+    bottom:26px; left:50%;
+    transform:translateX(-50%);
+    color:var(--muted);
+    font-size:.8rem;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+  }
+
+.lightbox-stage{
+  width:min(1400px, 92vw);
+  height:min(80vh, 800px);
+  aspect-ratio:auto;
+  border:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#000;
+}
+
+.lightbox-stage img{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+}
+
+
+  /* ============ INFO & SYSTEM REQUIREMENTS ============ */
+  .info-block, .sysreq-block{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:32px;
+    margin-top:36px;
+  }
+  .info-block h3, .sysreq-block h3{
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:1rem;
+    margin-bottom:22px;
+    color:var(--accent);
+  }
+  .info-list{ display:flex; flex-direction:column; }
+  .info-list > div{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:20px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    font-size:.9rem;
+  }
+  .info-list > div:last-child{ border-bottom:none; }
+  .info-list dt{
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.72rem;
+    flex:0 0 auto;
+  }
+  .info-list dd{ color:var(--text); text-align:right; }
+
+  .sysreq-columns{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:32px;
+  }
+  .sysreq-col h4{
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.9rem;
+    color:var(--text);
+    margin-bottom:10px;
+  }
+  .sysreq-note{
+    color:var(--muted);
+    font-size:.82rem;
+    font-style:italic;
+    margin-bottom:14px;
+  }
+  .sysreq-col ul{ list-style:none; }
+  .sysreq-col li{
+    color:var(--muted);
+    font-size:.85rem;
+    padding:8px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .sysreq-col li:last-child{ border-bottom:none; }
+  .sysreq-col li strong{ color:var(--text); }
+  @media (max-width:600px){
+    .sysreq-columns{ grid-template-columns:1fr; }
+  }
+
+  /* ============ DOWNLOAD ============ */
+  .download-block{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:32px;
+    margin-top:36px;
+  }
+  .download-block h3{
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:1rem;
+    margin-bottom:22px;
+    color:var(--accent);
+  }
+  .download-list{
+    display:flex;
+    flex-direction:column;
+  }
+  .download-list > div{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:20px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    font-size:.9rem;
+  }
+  .download-list > div:last-child{
+    border-bottom:none;
+  }
+  .download-list dt{
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.72rem;
+    flex:0 0 auto;
+  }
+  .download-list dd{
+    text-align:right;
+  }
+  .download-list a{
+    color:var(--text);
+    text-decoration:none;
+    transition:color .25s;
+  }
+  .download-list a:hover{
+    color:var(--accent);
+  }
+
+article p{
+  color:var(--muted);
+  margin-bottom:18px;
+}
+
+article ul{
+  margin:0 0 22px 0;
+  padding-left:2.2em;
+  color:var(--text);
+}
+
+article li{
+  margin-bottom:8px;
+  padding-left:4px;
+}
+
+/* ============ VIDEO ============ */
+.video-container{
+  margin:36px 0;
+  width:100%;
+  background:#000;
+  border:1px solid var(--line);
+  overflow:hidden;
+}
+
+.video-container video{
+  width:100%;
+  height:auto;
+  display:block;
+  background:#000;
+}
+
+
+  /* ============ BLOG ARTICLE ============ */
+  .article-title{
+    font-size:clamp(2.2rem, 6vw, 4rem);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    line-height:1.1;
+    font-weight:800;
+  }
+  .article-title .red{ color:var(--accent); }
+  .article-meta{
+    margin-top:14px;
+    color:var(--muted);
+    font-size:.8rem;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+  }
+  .article-meta span{ color:var(--accent); }
+  .article-cover{
+    margin:36px 0;
+    height:280px;
+    background:linear-gradient(135deg,#3b1f2b,#a32638);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:3rem;
+    font-weight:800;
+    letter-spacing:.05em;
+    color:rgba(255,255,255,.85);
+    border:1px solid var(--line);
+  }
+
+  article h2{
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:1.4rem;
+    margin:44px 0 14px;
+  }
+  article h2::after{
+    content:"";
+    display:block;
+    width:50px; height:3px;
+    background:var(--accent);
+    margin-top:10px;
+  }
+  article p{
+    color:var(--muted);
+    margin-bottom:18px;
+  }
+  article blockquote{
+    border-left:4px solid var(--accent);
+    background:var(--panel);
+    padding:20px 26px;
+    margin:28px 0;
+    font-style:italic;
+    color:var(--text);
+  }
+
+.download-list a{
+  color:var(--text);
+  text-decoration:none;
+  transition:color .25s;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.download-list a:hover{
+  color:var(--accent);
+}
+
+.download-icon{
+  width:16px;
+  height:16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  flex:0 0 auto;
+}
+
+  /* ============ FOOTER (same as index.html) ============ */
+  footer{
+    border-top:1px solid var(--line);
+    padding:44px 24px;
+    text-align:center;
+    color:var(--muted);
+    font-size:.85rem;
+  }
+  footer .socials{
+    display:flex;
+    justify-content:center;
+    gap:26px;
+    margin-bottom:20px;
+  }
+  footer .socials a{
+    color:var(--muted);
+    text-decoration:none;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:.75rem;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:color .25s;
+  }
+  footer .socials a svg{
+    width:18px;
+    height:18px;
+    fill:currentColor;
+    flex:0 0 auto;
+  }
+  footer .socials a:hover{ color:var(--accent); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px){
+    :root{ --header-h:100px; }
+    .logo-box{ width:88px; height:88px; font-size:.6rem; }
+    .burger{ display:flex; }
+    nav{
+      position:fixed;
+      top:var(--header-h); right:0;
+      width:min(320px, 80vw);
+      height:calc(100vh - var(--header-h));
+      background:var(--bg-alt);
+      border-left:1px solid var(--line);
+      transform:translateX(100%);
+      transition:transform .3s ease;
+      padding:40px 32px;
+    }
+    nav.open{ transform:translateX(0); }
+    nav ul{ flex-direction:column; gap:28px; }
+    header.shrunk{ height:var(--header-h); }
+    header.shrunk .logo-box{ width:88px; height:88px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER (from index.html) ================= -->
+<header id="siteHeader">
+  <a href="index.html" class="logo-box" aria-label="Indicatrix Studio — home">
+    <img src="./img/Logo150.png" alt="Indicatrix Studio">
+  </a>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="mainNav">
+    <ul>
+      <li><a href="index.html#about" class="nav-link">About</a></li>
+      <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ================= MAIN: ARTICLE + SCREENSHOTS ================= -->
+<main>
+  <div class="cargo-layout">
+    <article>
+      <h1 class="article-title">Cargo <span class="red">Industry</span></h1>
+      <p class="article-meta"><span>Simulation / Strategy</span> &nbsp;•&nbsp; Indicatrix Studio &nbsp;</p>
+
+      <div class="article-cover">
+<img src="./img/GameLogo.png" alt="Cargo Industry">
+</div>
+
+      <h2>About the game</h2>
+<p>Build your own transport empire in a retro-inspired strategy game where smart planning and efficient logistics are the keys to success.</p>
+
+<p>Lay down railway lines and roads, connect cities and industries, build factories, and create transportation networks that keep your economy moving. Coordinate trains and vehicles to deliver raw materials where they are needed and turn them into valuable goods.</p>
+
+<p>Plan your routes, optimize your network, expand your infrastructure, and watch your growing transport system come to life. Whether you prefer carefully optimized rail networks or a sprawling mix of roads, trains, factories, and vehicles, the way you build your empire is up to you.</p>
+
+<blockquote>Build. Connect. Transport. Expand.</blockquote>
+
+      <h2>Key features</h2>
+<ul> <li><strong>Build Your Transport Network</strong> — Construct railways and roads to connect industries, cities, and resources.</li> <li><strong>Manage Trains &amp; Vehicles</strong> — Coordinate your fleet and create efficient routes for transporting goods and raw materials.</li> <li><strong>Develop Your Industries</strong> — Build factories and connect them to the supply chain to keep production running.</li> <li><strong>Optimize Your Logistics</strong> — Plan routes, manage transportation, and improve the flow of resources across your network.</li> <li><strong>Expand Your Empire</strong> — Start small and gradually build a larger and more complex transportation network.</li> <li><strong>Retro-Inspired Strategy</strong> — Enjoy a classic transport management experience with a distinctive retro aesthetic.</li> </ul>
+
+      <h2>Release</h2>
+<p>Build your network, manage your transportation empire, and discover how far you can take it. The game is being developed with a focus on classic transport-management gameplay, accessible mechanics, and a charming retro-inspired style.</p>
+
+<p>More details, features, and improvements will be added as development continues. Follow the game to stay up to date and be there when the journey begins.</p>
+    
+
+<h2>Video :: Trailer</h2>
+
+<div class="video-container">
+  <video controls preload="metadata">
+    <source src="./video/intro-cargo-industry.mp4" type="video/mp4">
+    Your browser does not support the HTML5 video player.
+  </video>
+</div>
+
+<p>
+  Watch Cargo Industry in action and get a first look at the transport network,
+  vehicles, industries and gameplay.
+</p>
+
+
+
+</article>
+
+    <aside class="screenshots-col">
+      <h2 class="screens-title">Screenshots</h2>
+      <div class="screens-grid" id="screensGrid">
+
+  <button class="thumb" type="button" data-index="0" aria-label="Open screenshot 1">
+    <img src="./img/screenshot01.png" alt="Cargo Industry screenshot 1">
+  </button>
+
+  <button class="thumb" type="button" data-index="1" aria-label="Open screenshot 2">
+    <img src="./img/screenshot02.png" alt="Cargo Industry screenshot 2">
+  </button>
+
+  <button class="thumb" type="button" data-index="2" aria-label="Open screenshot 3">
+    <img src="./img/screenshot03.png" alt="Cargo Industry screenshot 3">
+  </button>
+
+  <button class="thumb" type="button" data-index="3" aria-label="Open screenshot 4">
+    <img src="./img/screenshot04.png" alt="Cargo Industry screenshot 4">
+  </button>
+
+  <button class="thumb" type="button" data-index="4" aria-label="Open screenshot 5">
+    <img src="./img/screenshot05.png" alt="Cargo Industry screenshot 5">
+  </button>
+
+  <button class="thumb" type="button" data-index="5" aria-label="Open screenshot 6">
+    <img src="./img/screenshot06.png" alt="Cargo Industry screenshot 6">
+  </button>
+
+</div>
+
+      <div class="info-block reveal">
+        <h3>Info</h3>
+        <dl class="info-list">
+          <div><dt>Title</dt><dd>Cargo Industry</dd></div>
+          <div><dt>Genre</dt><dd>Indie, Simulation, Strategy</dd></div>
+          <div><dt>Developer</dt><dd>Martin Timothy Timko</dd></div>
+          <div><dt>Publisher</dt><dd>Martin Timothy Timko</dd></div>
+          <div><dt>Release Date</dt><dd>21 Aug, 2026</dd></div>
+        </dl>
+      </div>
+
+      <div class="sysreq-block reveal">
+        <h3>System Requirements</h3>
+        <div class="sysreq-columns">
+          <div class="sysreq-col">
+            <h4>Minimum:</h4>
+            <p class="sysreq-note">Requires a 64-bit processor and operating system</p>
+            <ul>
+              <li><strong>OS:</strong> Windows 10, Windows 11</li>
+              <li><strong>Processor:</strong> Dual Core CPU: 3 GHz</li>
+              <li><strong>Memory:</strong> 16 GB RAM</li>
+              <li><strong>Graphics:</strong> NVIDIA Geforce GTX 1060 6GB</li>
+              <li><strong>DirectX:</strong> Version 11</li>
+              <li><strong>Storage:</strong> 1300 MB available space</li>
+              <li><strong>Additional Notes:</strong> System specs can and will change!</li>
+            </ul>
+          </div>
+          <div class="sysreq-col">
+            <h4>Recommended:</h4>
+            <p class="sysreq-note">Requires a 64-bit processor and operating system</p>
+            <ul>
+              <li><strong>OS:</strong> Windows 10, Windows 11</li>
+              <li><strong>Processor:</strong> Dual Core CPU: 3 GHz</li>
+              <li><strong>Memory:</strong> 16 GB RAM</li>
+              <li><strong>Graphics:</strong> NVIDIA Geforce GTX 1060 6GB</li>
+              <li><strong>DirectX:</strong> Version 11</li>
+              <li><strong>Storage:</strong> 1300 MB available space</li>
+              <li><strong>Additional Notes:</strong> System specs can and will change!</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="download-block reveal">
+        <h3>Download</h3>
+        <dl class="download-list">
+          <div>
+            <dt>Windows version</dt>
+<dd>
+  <a href="./bin/CargoIndustry.zip" download>
+    <svg class="download-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 18v2h14v-2"/>
+    </svg>
+    Cargo Industry (114 MB)
+  </a>
+</dd>
+          </div>
+        </dl>
+      </div>
+
+    </aside>
+  </div>
+</main>
+
+<!-- ================= LIGHTBOX ================= -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Previous screenshot">&#10094;</button>
+  <div class="lightbox-stage" id="lightboxStage"></div>
+  <button class="lightbox-nav next" id="lightboxNext" aria-label="Next screenshot">&#10095;</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<!-- ================= FOOTER (from index.html) ================= -->
+<footer>
+  <div class="socials">
+    <a href="http://www.youtube.com/@martin-timothy-timko" target="_blank" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="1.5" y="5" width="21" height="14" rx="4" fill="currentColor"/>
+        <polygon points="10,9 16,12 10,15" fill="var(--bg)"/>
+      </svg>
+      YouTube
+    </a>
+    <a href="https://mtt-web.github.io" target="_blank">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+      </svg>
+      GitHub
+    </a>
+  </div>
+  <p>All trademarks referenced herein are the properties of their respective owners.</p>
+  <p>&copy; 2026 Matin Timothy Timko, Indicatrix Studio. All rights reserved.</p>
+</footer>
+
+<script>
+  // ---- Header shrink on scroll ----
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('shrunk', window.scrollY > 80);
+  }, { passive:true });
+
+  // ---- Mobile menu ----
+  const burger = document.getElementById('burger');
+  const nav = document.getElementById('mainNav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+  });
+  nav.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => nav.classList.remove('open'))
+  );
+
+  // ---- Screenshots lightbox ----
+  const thumbs = Array.from(document.querySelectorAll('.thumb'));
+  const lightbox = document.getElementById('lightbox');
+  const stage = document.getElementById('lightboxStage');
+  const counter = document.getElementById('lightboxCounter');
+  const btnClose = document.getElementById('lightboxClose');
+  const btnPrev = document.getElementById('lightboxPrev');
+  const btnNext = document.getElementById('lightboxNext');
+  let currentIndex = 0;
+
+function renderStage(i){
+  currentIndex = (i + thumbs.length) % thumbs.length;
+
+  const thumb = thumbs[currentIndex];
+  const img = thumb.querySelector('img');
+
+  stage.innerHTML = '';
+  stage.className = 'lightbox-stage';
+
+  const fullImage = document.createElement('img');
+  fullImage.src = img.src;
+  fullImage.alt = img.alt;
+
+  stage.appendChild(fullImage);
+
+  counter.textContent = (currentIndex + 1) + ' / ' + thumbs.length;
+}
+
+  function openLightbox(i){
+    renderStage(i);
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+  }
+
+  thumbs.forEach((thumb, i) => {
+    thumb.addEventListener('click', () => openLightbox(i));
+  });
+
+  btnClose.addEventListener('click', closeLightbox);
+  btnPrev.addEventListener('click', () => renderStage(currentIndex - 1));
+  btnNext.addEventListener('click', () => renderStage(currentIndex + 1));
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') renderStage(currentIndex - 1);
+    if (e.key === 'ArrowRight') renderStage(currentIndex + 1);
+  });
+</script>
+</body>
+</html>
